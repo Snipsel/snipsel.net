@@ -22,3 +22,5 @@
 figcaption{
     text-align: left;
 }
+
+figcaption time{ float: right; color:#FFFA }

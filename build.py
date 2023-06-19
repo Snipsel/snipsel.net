@@ -46,16 +46,6 @@ def main():
 def git_short_hash() -> str:
     return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip().upper()
 
-def gen_html_picture(artist:dict, slug:str, size, thumbs:list, date:str, alt:str):
-    mini_jpg  = ','.join([f'{slug}-{w}w.jpg {w}w' for w,h in thumbs])
-    mini_avif = ','.join([f'{slug}-{w}w.avif {w}w' for w,h in thumbs])
-    return f"""
-          <picture>
-            <source type="image/avif" sizes="calc(100% - 2rem)" srcset="{mini_avif}">
-            <source type="image/jpeg" sizes="calc(100% - 2rem)" srcset="{mini_jpg}">
-            <img src="{slug}-400w.jpg" alt="{alt}">
-          </picture>"""
-
 def gen_artist_links(artist:dict) -> str:
     html = ""
     for kind,link in artist['links'].items():
@@ -67,8 +57,19 @@ def gen_artist_links(artist:dict) -> str:
             </a>"""
     return html
 
+def gen_html_picture(artist:dict, slug:str, size, thumbs:list, date:str, alt:str, edits:dict[str,str]={}):
+    mini_jpg  = ','.join([f'{slug}-{w}w.jpg {w}w' for w,h in thumbs])
+    mini_avif = ','.join([f'{slug}-{w}w.avif {w}w' for w,h in thumbs])
+    return f"""
+          <picture>
+            <source type="image/avif" sizes="calc(100% - 2rem)" srcset="{mini_avif}">
+            <source type="image/jpeg" sizes="calc(100% - 2rem)" srcset="{mini_jpg}">
+            <img src="{slug}-400w.jpg" alt="{alt}">
+          </picture>"""
 
-def gen_html_figure(artist:dict, slug:str, size, thumbs:list, date:str, alt:str) -> str:
+def gen_html_figure(artist:dict, slug:str, size, thumbs:list, date:str, alt:str, edits:dict[str,str]={}) -> str:
+    yyyy,mm,dd = date.split(' ')[0].split('-')
+    month = [None, "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][int(mm)]
     return f"""
         <figure id="{slug}" class="artwork">
           <a href="{slug}">
@@ -77,10 +78,11 @@ def gen_html_figure(artist:dict, slug:str, size, thumbs:list, date:str, alt:str)
           <figcaption>
             {artist['name']}
             {gen_artist_links(artist)}
+            <time datetime="{date}">{month} {yyyy}</time>
           </figcaption>
         </figure>"""
 
-def gen_html_pfp(artist:dict, slug:str, size, thumbs:list, date:str, alt:str) -> str:
+def gen_html_pfp(artist:dict, slug:str, size, thumbs:list, date:str, alt:str, edits:dict[str,str]={}) -> str:
     return f"""
         <figure id="pfp" class="artwork">
           {gen_html_picture(artist=artist, slug=slug, size=size, thumbs=thumbs, date=date, alt=alt)}
