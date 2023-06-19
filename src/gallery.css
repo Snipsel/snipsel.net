@@ -1,0 +1,22 @@
+#gallery, #refsheet {
+    background-color: var(--color-water);
+    padding: var(--gutter);
+    gap: var(--gutter);
+    display: flex;
+    flex-direction: column;
+}
+
+#gallery img{
+    max-width: min(100%, 50vh);
+    margin-top: 0;
+}
+
+#gallery, #refsheet{
+    text-align: center;
+}
+
+#refsheet img {
+    width: min(100%, calc(var(--max-viewport-width-refsheet) - 2*var(--gutter)));
+    border: none;
+}
+

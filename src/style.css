@@ -1,0 +1,21 @@
+*,*::before,*::after{
+    box-sizing: border-box;
+    padding:0;
+    margin:0;
+}
+
+:root{
+    --gutter: 1rem;
+    --color-sky-top:    #3d6fb8;
+    --color-sky-bottom: #a5c9e9;
+    --color-water:      #3d8fb8;
+    --max-viewport-width-pfp: 320px;
+    --max-viewport-width-refsheet: 768px;
+    font-family: system-ui;
+    color: #FFF;
+}
+
+img{
+    border: 4px solid #FFF;
+    border-radius: 4px;
+}

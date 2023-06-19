@@ -1,0 +1,33 @@
+#profile{
+    background: linear-gradient(var(--color-sky-top), var(--color-sky-bottom));
+}
+
+#profile main{
+    text-align: center;
+    padding: 1em;
+    padding-top: 1.5em;
+}
+
+.wave {
+    height: 2em;
+    background:
+        radial-gradient(1.49em at 50% 2.10em,var(--color-water) 99%,#0000 101%) calc(50% - 2em) 0/4em 100%,
+        radial-gradient(1.49em at 50% -1.1em,#0000 99%,var(--color-water) 101%) 50% 1em/4em 100% repeat-x;
+}
+
+#profile ul{
+    width: 10ch;
+    margin: auto;
+    text-align: left;
+}
+
+#profile li{
+    list-style-type: none;
+}
+
+#profile img{
+    border-radius:50%;
+    width: min(100%, calc(var(--max-viewport-width-pfp) - 2*var(--gutter)));
+    margin-bottom: var(--gutter);
+}
+
