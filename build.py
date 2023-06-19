@@ -21,6 +21,8 @@ def main():
     copy(data_path/"Nunito.ttf", dst_path/"nunito.ttf")
     artworks, artists, pfp_path, refsheet_path = get_images()
 
+    artworks = dict(sorted(artworks.items(), reverse=True, key=lambda e: e[1]['date']))
+
     gallery_html = []
     refsheet_html = ""
     pfp_html = ""
