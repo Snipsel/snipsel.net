@@ -67,7 +67,9 @@ def gen_artist_links(artist:dict):
 def gen_html_figure(artist:dict, slug:str, size, thumbs:list, date:str, alt:str):
     return f"""
         <figure id="{slug}" class="artwork">
-          {gen_html_picture(artist=artist, slug=slug, size=size, thumbs=thumbs, date=date, alt=alt)}
+          <a href="{slug}">
+            {gen_html_picture(artist=artist, slug=slug, size=size, thumbs=thumbs, date=date, alt=alt)}
+          </a>
           <figcaption>
             {artist['name']}
             {gen_artist_links(artist)}
@@ -149,6 +151,7 @@ def get_images():
                 artwork['thumbs'].append( (w,h) )
                 generate_thumb(slug, w, h)
             generate_thumb(slug, source_img.width, source_img.height)
+        copy(img_path/path, dst_path/slug)
     return artworks, artists, pfp, refsheet
 
 def read_txt(filename:str):
