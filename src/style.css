@@ -1,3 +1,10 @@
+@font-face{
+    font-family: 'Nunito';
+    font-style: normal;
+    font-weight: 400;
+    src: url(nunito.ttf) format(truetype);
+}
+
 *,*::before,*::after{
     box-sizing: border-box;
     padding:0;
@@ -9,10 +16,11 @@
     --color-sky-top:    #3d6fb8;
     --color-sky-bottom: #a5c9e9;
     --color-water:      #3d8fb8;
-    --color-snipsel-blue: #2a8ed7;
     --max-viewport-width-pfp: 320px;
-    --max-viewport-width-refsheet: 768px;
-    font-family: system-ui;
+    --max-viewport-width-refsheet: 640px;
+    font-family: Nunito;
+    font-feature-settings:"onum";
+    font-size: clamp(1rem, 5vw, 1.5rem);
     color: #FFF;
 }
 
@@ -23,7 +31,7 @@ img{
 
 svg{
     fill: #FFF;
-    width:  0.75em;
+    width:  1em;
     height: 0.75em;
     margin-left: 0.25em;
     margin-right: 0.25em;

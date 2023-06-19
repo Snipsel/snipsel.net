@@ -8,6 +8,7 @@ from math import floor
 src_path = Path(__file__).parent/"src"
 dst_path = Path(__file__).parent/"www"
 img_path = Path(__file__).parent/"img"
+data_path =  Path(__file__).parent/"data"
 
 skip_images = True
 
@@ -15,7 +16,8 @@ def main():
     if not skip_images:
         rmtree(dst_path, ignore_errors=True)
     dst_path.mkdir(parents=True, exist_ok=True)
-    copy(Path(__file__).parent/"favicon32.png", dst_path)
+    copy(data_path/"favicon32.png", dst_path)
+    copy(data_path/"Nunito.ttf", dst_path/"nunito.ttf")
     artworks, artists, pfp_path, refsheet_path = get_images()
 
     gallery_html = []
@@ -50,12 +52,25 @@ def gen_html_picture(artist:dict, slug:str, size, thumbs:list, date:str, alt:str
             <img src="{slug}-400w.jpg">
           </picture>"""
 
+def gen_artist_links(artist:dict):
+    html = ""
+    for kind,link in artist['links'].items():
+        html += f"""
+            <a href="{link}">
+                <svg>
+                    <use href="#icon-{kind}"/>
+                </svg>
+            </a>"""
+    return html
+
+
 def gen_html_figure(artist:dict, slug:str, size, thumbs:list, date:str, alt:str):
     return f"""
         <figure id="{slug}" class="artwork">
           {gen_html_picture(artist=artist, slug=slug, size=size, thumbs=thumbs, date=date, alt=alt)}
           <figcaption>
             {artist['name']}
+            {gen_artist_links(artist)}
           </figcaption>
         </figure>"""
 

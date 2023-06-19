@@ -1,22 +1,24 @@
-#gallery, #refsheet {
+#gallery,
+#refsheet {
     background-color: var(--color-water);
     padding: var(--gutter);
     gap: var(--gutter);
+    margin:auto;
     display: flex;
     flex-direction: column;
+    align-items: center;
 }
 
-#gallery img{
+#gallery img,
+#gallery figure{
     max-width: min(100%, 50vh);
-    margin-top: 0;
 }
 
-#gallery, #refsheet{
-    text-align: center;
-}
-
-#refsheet img {
+#refsheet img,
+#refsheet figure{
     width: min(100%, calc(var(--max-viewport-width-refsheet) - 2*var(--gutter)));
-    border: none;
 }
 
+figcaption{
+    text-align: left;
+}

@@ -4,8 +4,8 @@
 
 #profile main{
     text-align: center;
-    padding: 1em;
-    padding-top: 1.5em;
+    padding: 1rem;
+    padding-top: 1.5rem;
 }
 
 .wave {
@@ -15,8 +15,12 @@
         radial-gradient(1.49em at 50% -1.1em,#0000 99%,var(--color-water) 101%) 50% 1em/4em 100% repeat-x;
 }
 
+#qr {
+    image-rendering: pixelated;
+}
+
 #profile ul{
-    width: 15ch;
+    width: 8em;
     margin: auto;
     text-align: left;
 }
@@ -26,13 +30,13 @@
 }
 
 #profile svg{
-    fill: var(--color-snipsel-blue);
+    fill: var(--color-water);
 }
 
 #profile li{
     list-style-type: none;
     /*border: 1px solid #FFF;*/
-    color: var(--color-snipsel-blue);
+    color: var(--color-water);
     background-color: #FFF;
     border-radius: 50vh;
     padding: 0.125em 0.25em;
