@@ -25,9 +25,6 @@
     text-align: left;
 }
 
-#profile ul a{
-    text-decoration: none;
-}
 
 #profile svg{
     fill: var(--color-water);
@@ -35,9 +32,13 @@
 
 #profile li{
     list-style-type: none;
-    /*border: 1px solid #FFF;*/
-    color: var(--color-water);
+}
+
+#profile li a{
+    text-decoration: none;
+    display: block;
     background-color: #FFF;
+    color: var(--color-water);
     border-radius: 50vh;
     padding: 0.125em 0.25em;
     margin-top: 0.5em;
