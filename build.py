@@ -49,7 +49,7 @@ def gen_html_picture(artist:dict, slug:str, size, thumbs:list, date:str, alt:str
           <picture>
             <source type="image/avif" sizes="calc(100% - 2rem)" srcset="{mini_avif}">
             <source type="image/jpeg" sizes="calc(100% - 2rem)" srcset="{mini_jpg}">
-            <img src="{slug}-400w.jpg">
+            <img src="{slug}-400w.jpg" alt="{alt}">
           </picture>"""
 
 def gen_artist_links(artist:dict):
