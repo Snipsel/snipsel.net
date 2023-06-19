@@ -4,6 +4,7 @@ from pathlib import Path
 from shutil import copy,rmtree
 from wand.image import Image
 from math import floor
+import subprocess
 
 src_path = Path(__file__).parent/"src"
 dst_path = Path(__file__).parent/"www"
@@ -39,8 +40,11 @@ def main():
                    svg=strip_lines(read_txt("icons.svg")),
                    pfp=strip_lines(pfp_html),
                    refsheet=strip_lines(refsheet_html),
-                   gallery=strip_lines(''.join(gallery_html))))
+                   gallery=strip_lines(''.join(gallery_html)),
+                   githash=git_short_hash() ))
 
+def git_short_hash() -> str:
+    return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip().upper()
 
 def gen_html_picture(artist:dict, slug:str, size, thumbs:list, date:str, alt:str):
     mini_jpg  = ','.join([f'{slug}-{w}w.jpg {w}w' for w,h in thumbs])
@@ -52,7 +56,7 @@ def gen_html_picture(artist:dict, slug:str, size, thumbs:list, date:str, alt:str
             <img src="{slug}-400w.jpg" alt="{alt}">
           </picture>"""
 
-def gen_artist_links(artist:dict):
+def gen_artist_links(artist:dict) -> str:
     html = ""
     for kind,link in artist['links'].items():
         html += f"""
@@ -64,7 +68,7 @@ def gen_artist_links(artist:dict):
     return html
 
 
-def gen_html_figure(artist:dict, slug:str, size, thumbs:list, date:str, alt:str):
+def gen_html_figure(artist:dict, slug:str, size, thumbs:list, date:str, alt:str) -> str:
     return f"""
         <figure id="{slug}" class="artwork">
           <a href="{slug}">
@@ -76,7 +80,7 @@ def gen_html_figure(artist:dict, slug:str, size, thumbs:list, date:str, alt:str)
           </figcaption>
         </figure>"""
 
-def gen_html_pfp(artist:dict, slug:str, size, thumbs:list, date:str, alt:str):
+def gen_html_pfp(artist:dict, slug:str, size, thumbs:list, date:str, alt:str) -> str:
     return f"""
         <figure id="pfp" class="artwork">
           {gen_html_picture(artist=artist, slug=slug, size=size, thumbs=thumbs, date=date, alt=alt)}

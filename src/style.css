@@ -37,6 +37,17 @@ svg{
     margin-right: 0.25em;
 }
 
+footer{
+    text-align: center;
+    background: var(--color-water);
+}
+
+small{
+    color: #FFF8;
+    font-feature-settings:"tnum";
+    font-size: max(16px, 0.75rem);
+}
+
 .wave {
     height: 2em;
     background:
@@ -47,4 +58,3 @@ svg{
 .sky{
     background: linear-gradient(var(--color-sky-top), var(--color-sky-bottom));
 }
-
