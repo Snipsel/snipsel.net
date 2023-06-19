@@ -9,13 +9,13 @@ src_path = Path(__file__).parent/"src"
 dst_path = Path(__file__).parent/"www"
 img_path = Path(__file__).parent/"img"
 
-skip_images = False
+skip_images = True
 
 def main():
-
     if not skip_images:
         rmtree(dst_path, ignore_errors=True)
     dst_path.mkdir(parents=True, exist_ok=True)
+    copy(Path(__file__).parent/"favicon32.png", dst_path)
     artworks, artists, pfp_path, refsheet_path = get_images()
 
     gallery_html = []
@@ -24,7 +24,7 @@ def main():
     for path,artwork in artworks.items():
         if path==pfp_path:
             pfp_html = gen_html_pfp(**artwork)
-            gallery_html.append(pfp_html)
+            gallery_html.append(gen_html_figure(**artwork))
         elif path==refsheet_path:
             refsheet_html = gen_html_figure(**artwork)
         else:
@@ -34,7 +34,7 @@ def main():
               resolve(strip_lines(read_txt("index.html")), 
                    title="Snipsel's Cozy Corner of the Internet",
                    style=strip_lines(read_txt("style.css")+read_txt("profile.css")+read_txt("gallery.css")),
-                   script=strip_lines(read_txt("script.js")),
+                   svg=strip_lines(read_txt("icons.svg")),
                    pfp=strip_lines(pfp_html),
                    refsheet=strip_lines(refsheet_html),
                    gallery=strip_lines(''.join(gallery_html))))

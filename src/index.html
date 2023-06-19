@@ -3,11 +3,12 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon32.png">
     <title>{title}</title>
     <style>{style}</style>
-    <script>{script}</script>
   </head>
   <body>
+    {svg}
     <main>
         <article id="profile">
         <main>
@@ -15,8 +16,12 @@
             <h2>Hi, I’m Snipsel!</h2>
             <p>And here’s where you can find me:</p>
             <ul>
-              <li>Twitter</li>
-              <li>Telegram</li>
+              <a href="https://t.me/Snipsel"><li>
+                  <svg><use href="#icon-telegram"/></svg>
+                  @Snipsel</li></a>
+              <a href="https://twitter.com/SnipselOtter"><li>
+                  <svg><use href="#icon-twitter"/></svg>
+                  @SnipselOtter</li></a>
             </ul>
         </main>
         <div class="wave"/>

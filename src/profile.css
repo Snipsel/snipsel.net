@@ -16,13 +16,28 @@
 }
 
 #profile ul{
-    width: 10ch;
+    width: 15ch;
     margin: auto;
     text-align: left;
 }
 
+#profile ul a{
+    text-decoration: none;
+}
+
+#profile svg{
+    fill: var(--color-snipsel-blue);
+}
+
 #profile li{
     list-style-type: none;
+    /*border: 1px solid #FFF;*/
+    color: var(--color-snipsel-blue);
+    background-color: #FFF;
+    border-radius: 50vh;
+    padding: 0.125em 0.25em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
 }
 
 #profile img{
