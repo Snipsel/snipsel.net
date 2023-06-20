@@ -5,20 +5,21 @@ from shutil import copy,rmtree
 from wand.image import Image
 from math import floor
 import subprocess
+from fontTools import subset
 
 src_path = Path(__file__).parent/"src"
 dst_path = Path(__file__).parent/"www"
 img_path = Path(__file__).parent/"img"
 data_path =  Path(__file__).parent/"data"
 
-skip_images = False
+skip_images = True
 
 def main():
     if not skip_images:
         rmtree(dst_path, ignore_errors=True)
     dst_path.mkdir(parents=True, exist_ok=True)
     copy(data_path/"favicon32.png", dst_path)
-    copy(data_path/"Nunito.ttf", dst_path/"nunito.ttf")
+    subset_font(str(data_path/"Nunito.ttf"), str(dst_path/"nunito.woff2"))
     artworks, artists, pfp_path, refsheet_path = get_images()
 
     artworks = dict(sorted(artworks.items(), reverse=True, key=lambda e: e[1]['date']))
@@ -47,6 +48,14 @@ def main():
 
 def git_short_hash() -> str:
     return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip().upper()
+
+def subset_font(infont:str, outfont:str):
+    subset.main([
+        infont,
+        '--flavor=woff2',
+       f'--output-file={outfont}',
+        '--layout-features+=onum',
+        '--text="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@!,’"'])
 
 def gen_artist_links(artist:dict) -> str:
     html = ""
@@ -122,9 +131,6 @@ def get_images():
         artists = resolve_links(artists_unlinked, config['link_templates'])
         return artworks, artists, config['pfp'], config['refsheet']
 
-    def slugify_filename(filename: str):
-        return str(Path(filename).stem)
-
     def generate_thumb(slug:str, w:int, h:int):
         if not skip_images:
             print(f"{slug}: {w}x{h}")
@@ -143,7 +149,7 @@ def get_images():
     for path,artwork in artworks.items():
         artist_id, slug = path.split('/')
         artwork['artist'] = artists[artist_id]
-        slug = slugify_filename(slug) + '-by-' + artist_id;
+        slug = str(Path(slug).stem) + '-by-' + artist_id;
         artwork['slug'] = slug
         artwork['thumbs'] = []
         with Image(filename=img_path/path) as source_img:

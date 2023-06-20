@@ -2,7 +2,7 @@
     font-family: 'Nunito';
     font-style: normal;
     font-weight: 400;
-    src: url(nunito.ttf) format(truetype);
+    src: url(nunito.woff2) format(woff2);
 }
 
 *,*::before,*::after{
