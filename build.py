@@ -145,7 +145,7 @@ def get_images():
                 o.compression_quality=80
                 o.save(filename=dst_path/(slug + f'-{w}w.jpg'))
 
-    with open(img_path/'metadata.yaml', 'r') as file:
+    with open(src_path/'metadata.yaml', 'r') as file:
         artworks, artists, pfp, refsheet = load_metadata(list(yaml.safe_load_all(file)))
 
     for path,artwork in artworks.items():

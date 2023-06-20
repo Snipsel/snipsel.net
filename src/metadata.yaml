@@ -1,0 +1,96 @@
+---
+
+crys-hybrid/christmas.png:
+  date: 2022-12-17 21:24+0000
+  alt: Fullbody painting of Snipsel standing, wearing winter clothes and christmas hat, holding toob in his arms.
+  sha3: 52771141675c7b53e1216720f348466921f79aa0f252bce709e3e38c
+
+gabowook/fireplace-with-friends.png:
+  date: 2023-01-30 23:03+0000
+  alt: Snipsel, Phoenix and Salvernia relaxing in a cozy cabin with a fireplace.
+  sha3: 02d60f251611230a0f6fc2da5a3425dc975e22e3b570d277a22a8f92
+
+latrans/icon.png:
+  date: 2023-06-02 07:08+0100
+  alt: Icon painting of Snipsel winking with smile.
+  sha3: 55114829ddca27e03bbe85f174ebb9ef9c1b7bf7e54e355a88b502d9
+
+shimmi/badge.png:
+  date: 2023-01-31 07:29+0000
+  alt: Badge of Snipsel with name
+  sha3: 232f74ec24428abef0faee41d9d3352c34b6e1796e34662aef497e0e
+
+shimmi/badge-notext.png:
+  date: 2023-01-31 07:29+0000
+  alt: Badge of Snipsel without name
+  sha3: 6bd010da85a5fa4e7293474c81cf295095cc81350020d2ff164c80d0
+  edit: shimmi/badge.png
+
+shimmi/refsheet.png:
+  date: 2022-09-26 12:36+0100
+  alt: Refsheet of Snipsel
+  sha3: ff1109036b8021853d4098762303e5c19b8a9c65a397928763795df2
+
+peristertronic/badge.png:
+  date: 2022-05-13 12:44+0100
+  alt: Badge of Snipsel 1
+  sha3: 2aa6aec8e1c4c5e742ae97dce1d4224a8407f86144f4d1a0bc1f0a98
+
+---
+
+crys-hybrid:
+  name: "Crys Hybrid"
+  links:
+    website: cryshybrid.carrd.co
+    twitter: Crys_the_Hybrid
+    patreon: cryshybrid
+    etsy: uk GooCow
+    twitch: crys_hybrid
+
+gabowook:
+  name: "Gabbowook"
+  links:
+    website: gabowook.carrd.co
+    instagram: gabowook
+    tumblr: gabowook
+    twitter: gabowook
+    paypal: gabow00k
+
+latrans:
+  name: "@_latrans"
+  links:
+    twitter: _latrans
+
+shimmi:
+  name: "Shimmi"
+  links:
+    website: shimmi.art
+    twitter: Shimmi_Art
+    furaffinity: shimmi
+    tumblr: artofshimmi
+
+peristertronic:
+  name: "Peristertronic"
+  links:
+    website: linktr.ee/peristertronic
+    twitter: peristertronic
+    instagram: Peristertronic
+    furaffinity: peristertronic
+
+---
+
+pfp: latrans/icon.png
+refsheet: shimmi/refsheet.png
+
+link_templates:
+  website: https://$
+  email: mailto:$
+  etsy: https://etsy.com/$/shop/$
+  instagram: https://instagram.com/$
+  tumblr: https://$.tumblr.com
+  twitter: https://twitter.com/$
+  twitch: https://twitch.tv/$
+  paypal: https://paypal.me/$
+  patreon: https://patreon.com/$
+  furaffinity: https://www.furaffinity.net/user/$
+
