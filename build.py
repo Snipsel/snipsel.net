@@ -54,8 +54,10 @@ def subset_font(infont:str, outfont:str):
         infont,
         '--flavor=woff2',
        f'--output-file={outfont}',
-        '--layout-features+=onum',
-        '--text="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@!,’"'])
+        '--layout-features=kern,liga,onum',
+        '--desubroutinize',
+        '--no-hinting',
+        '--text="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@_!,’"'])
 
 def gen_artist_links(artist:dict) -> str:
     html = ""
