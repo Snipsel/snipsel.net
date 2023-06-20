@@ -11,7 +11,7 @@ dst_path = Path(__file__).parent/"www"
 img_path = Path(__file__).parent/"img"
 data_path =  Path(__file__).parent/"data"
 
-skip_images = True
+skip_images = False
 
 def main():
     if not skip_images:
@@ -59,7 +59,7 @@ def gen_artist_links(artist:dict) -> str:
             </a>"""
     return html
 
-def gen_html_picture(artist:dict, slug:str, size, thumbs:list, date:str, alt:str, edits:dict[str,str]={}):
+def gen_html_picture(artist:dict, slug:str, size, thumbs:list, date:str, alt:str, sha3:str, edit:str=None):
     mini_jpg  = ','.join([f'{slug}-{w}w.jpg {w}w' for w,h in thumbs])
     mini_avif = ','.join([f'{slug}-{w}w.avif {w}w' for w,h in thumbs])
     return f"""
@@ -69,13 +69,13 @@ def gen_html_picture(artist:dict, slug:str, size, thumbs:list, date:str, alt:str
             <img src="{slug}-400w.jpg" alt="{alt}">
           </picture>"""
 
-def gen_html_figure(artist:dict, slug:str, size, thumbs:list, date:str, alt:str, edits:dict[str,str]={}) -> str:
+def gen_html_figure(artist:dict, slug:str, size, thumbs:list, date:str, alt:str, sha3:str, edit:str=None) -> str:
     yyyy,mm,dd = date.split(' ')[0].split('-')
     month = [None, "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][int(mm)]
     return f"""
         <figure id="{slug}" class="artwork">
           <a href="{slug}">
-            {gen_html_picture(artist=artist, slug=slug, size=size, thumbs=thumbs, date=date, alt=alt)}
+            {gen_html_picture(artist=artist, slug=slug, size=size, thumbs=thumbs, date=date, alt=alt, sha3=sha3, edit=edit)}
           </a>
           <figcaption>
             {artist['name']}
@@ -84,10 +84,10 @@ def gen_html_figure(artist:dict, slug:str, size, thumbs:list, date:str, alt:str,
           </figcaption>
         </figure>"""
 
-def gen_html_pfp(artist:dict, slug:str, size, thumbs:list, date:str, alt:str, edits:dict[str,str]={}) -> str:
+def gen_html_pfp(artist:dict, slug:str, size, thumbs:list, date:str, alt:str, sha3:str, edit:str=None) -> str:
     return f"""
         <figure id="pfp" class="artwork">
-          {gen_html_picture(artist=artist, slug=slug, size=size, thumbs=thumbs, date=date, alt=alt)}
+          {gen_html_picture(artist=artist, slug=slug, size=size, thumbs=thumbs, date=date, alt=alt, sha3=sha3, edit=edit)}
         </figure>"""
 
 def get_images():
@@ -123,11 +123,7 @@ def get_images():
         return artworks, artists, config['pfp'], config['refsheet']
 
     def slugify_filename(filename: str):
-        slug = str(str(Path(filename).stem))
-        slug = slug.replace('snipsel','')
-        slug = slug.replace('--','')
-        slug = slug.strip('-')
-        return slug
+        return str(Path(filename).stem)
 
     def generate_thumb(slug:str, w:int, h:int):
         if not skip_images:

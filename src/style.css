@@ -17,7 +17,7 @@
     --color-sky-bottom: #a5c9e9;
     --color-water:      #3d8fb8;
     --max-viewport-width-pfp: 320px;
-    --max-viewport-width-refsheet: 640px;
+    --max-viewport-width-refsheet: 800px;
     font-family: Nunito;
     font-feature-settings:"onum";
     font-size: clamp(1rem, 5vw, 1.5rem);
