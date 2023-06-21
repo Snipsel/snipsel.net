@@ -36,7 +36,13 @@
             </li>
           </ul>
         </article>
-        <div class="wave"></div>
+
+        <svg class="wave" width="100%" height="48">
+          <pattern id="wave-pattern" width="100" height="50" y="-1" viewBox="0 0 4 2" patternUnits="userSpaceOnUse">
+            <path d="M0 1Q1 0 2 1T4 1V2H0Z" />
+          </pattern>
+          <rect fill="url(#wave-pattern)" width="100%" height="100%" />
+        </svg>
       </div>
 
       <article id="refsheet">

@@ -29,12 +29,17 @@ img{
     border-radius: 4px;
 }
 
-svg{
+svg:not(.wave){
     fill: #FFF;
     width:  1em;
     height: 0.75em;
     margin-left: 0.25em;
     margin-right: 0.25em;
+}
+
+.wave{
+    fill: var(--color-water);
+    margin-bottom:-9px;
 }
 
 footer{
@@ -46,13 +51,6 @@ small{
     color: #FFF8;
     font-feature-settings:"tnum";
     font-size: max(16px, 0.75rem);
-}
-
-.wave {
-    height: 2em;
-    background:
-        radial-gradient(1.49em at 50% 2.10em,var(--color-water) 99%,#0000 101%) calc(50% - 2em) 0/4em 100%,
-        radial-gradient(1.49em at 50% -1.1em,#0000 99%,var(--color-water) 101%) 50% 1em/4em 100% repeat-x;
 }
 
 .sky{
