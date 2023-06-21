@@ -39,7 +39,7 @@ svg:not(.wave){
 
 .wave{
     fill: var(--color-water);
-    margin-bottom:-9px;
+    display:block;
 }
 
 footer{
