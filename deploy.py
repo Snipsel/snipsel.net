@@ -8,11 +8,19 @@ import boto3
 
 local_path = Path(__file__).parent/"www"
 
-def main():
-    s3 = authenticate()
-    objects = list_objects(s3)
 
+def main(skip_thumbs:bool=False):
+    s3 = authenticate()
+
+    objects = list_objects(s3)
     local_files = list(local_path.iterdir())
+
+    if skip_thumbs:
+        def is_thumb(s:str):
+            return s.endswith('.jpg') or s.endswith('.avif')
+        objects     = {k:v for k,v in objects.items() if not is_thumb(k)}
+        local_files = [f   for f   in local_files     if not is_thumb(f.name)]
+
     local_file_names = [str(p.name) for p in local_files]
     max_filename_len = max([len(p) for p in list(objects.keys())+local_file_names])
 
@@ -143,5 +151,9 @@ def print_opcount():
     print('\n'.join(boxify(lines)))
     
 if __name__ == "__main__":
-    main()
+    from sys import argv
+    argset = set()
+    for arg in argv[1:]:
+        argset.add(arg)
+    main(skip_thumbs='--skip-thumbs' in argset)
 
