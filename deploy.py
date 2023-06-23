@@ -8,17 +8,11 @@ import boto3
 
 local_path = Path(__file__).parent/"www"
 
-
-def main(skip_thumbs:bool=False, index_only:bool=False):
+def sync(skip_thumbs:bool=False):
     s3 = authenticate()
 
     objects = list_objects(s3)
     local_files = list(local_path.iterdir())
-
-    if index_only:
-        assert(not skip_thumbs)
-        objects = {'index.html':objects['index.html']}
-        local_files = [local_path/'index.html']
 
     if skip_thumbs:
         assert(not index_only)
@@ -32,9 +26,11 @@ def main(skip_thumbs:bool=False, index_only:bool=False):
 
     for file in local_files:
         fname = pad_with_dots(file.name, max_filename_len)
-        warn = '⚠️'+'\033[4G'+fname
-        upld = '⬆️'+'\033[4G'+fname
-        keep = '✅'+'\033[4G'+fname
+        align= '033[4G'
+        warn = '⚠️'+align+fname
+        upld = '⬆️'+align+fname
+        keep = '✅'+align+fname
+
         if not file.is_file(): 
             print(f'{warn}not a file -> skipping')
         elif file.name not in objects:
@@ -66,6 +62,12 @@ def main(skip_thumbs:bool=False, index_only:bool=False):
 
     print_opcount()
 
+def push(local_files:list[str]):
+    s3 = authenticate()
+    max_len = max([len(f) for f in local_files])
+    for file in local_files:
+        print('⬆️'+ '\033[4G' + pad_with_dots(file, max_len))
+        put_object(s3, local_path/file)
 
 def authenticate():
     secrets_path =  Path(__file__).parent/".secrets"
@@ -155,11 +157,20 @@ def print_opcount():
         line += f'{t:>5}'
     lines.append(line);
     print('\n'.join(boxify(lines)))
-    
+
 if __name__ == "__main__":
     from sys import argv
-    argset = set()
-    for arg in argv[1:]:
-        argset.add(arg)
-    main(skip_thumbs='--skip-thumbs' in argset, index_only ='--index-only' in argset)
+    if '-h' in set(argv[1:]) or '--help' in set(argv[1:]):
+        r = '\033[0m'
+        i = '\033[3m'
+        b = '\033[93;1m'
+        print(f"{b}{argv[0]}{r} [--skip-thumbs]")
+        print(f"    {i}Syncs the remote to be identical to local.{r}")
+        print(f"    {b}--skip-thumbs{r}  {i}Skip thumbnails to save on operation count{r}")
+        print(f"{b}{argv[0]} push{r} [files...]")
+        print(f"    {i}Pushes local files to remote unconditionally.{r}")
+    if argv[1] == 'push':
+        push(argv[2:])
+    else:
+        args = set(argv[1:])
 
