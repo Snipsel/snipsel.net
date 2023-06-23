@@ -32,6 +32,7 @@ def main():
             pfp_html = gen_html_pfp(**artwork)
             gallery_html.append(gen_html_figure(**artwork))
         elif path==refsheet_path:
+            artwork['edit']='__REF' # hack :(
             refsheet_html = gen_html_figure(**artwork)
         else:
             gallery_html.append(gen_html_figure(**artwork))
@@ -73,10 +74,15 @@ def gen_artist_links(artist:dict) -> str:
 def gen_html_picture(artist:dict, slug:str, size, thumbs:list, date:str, alt:str, sha3:str, edit:str=None):
     mini_jpg  = ','.join([f'{slug}-{w}w.jpg {w}w' for w,h in thumbs])
     mini_avif = ','.join([f'{slug}-{w}w.avif {w}w' for w,h in thumbs])
+    sizes = 'min(100vw,50vh)'
+    if edit == '__PFP':
+        sizes = 'min(100vw,calc(320px - 2rem))'
+    if edit == '__REF':
+        sizes = 'min(100vw,calc(800px - 2rem))'
     return f"""
           <picture>
-            <source type="image/avif" srcset="{mini_avif}">
-            <source type="image/jpeg" srcset="{mini_jpg}">
+            <source type="image/avif" sizes="{sizes}" srcset="{mini_avif}">
+            <source type="image/jpeg" sizes="{sizes}" srcset="{mini_jpg}">
             <img width="{size[0]}" height="{size[1]}" src="{slug}-400w.jpg" alt="{alt}">
           </picture>"""
 
@@ -98,7 +104,7 @@ def gen_html_figure(artist:dict, slug:str, size, thumbs:list, date:str, alt:str,
 def gen_html_pfp(artist:dict, slug:str, size, thumbs:list, date:str, alt:str, sha3:str, edit:str=None) -> str:
     return f"""
         <figure id="pfp" class="artwork">
-          {gen_html_picture(artist=artist, slug=slug, size=size, thumbs=thumbs, date=date, alt=alt, sha3=sha3, edit=edit)}
+          {gen_html_picture(artist=artist, slug=slug, size=size, thumbs=thumbs, date=date, alt=alt, sha3=sha3, edit='__PFP')}
         </figure>"""
 
 def get_images():

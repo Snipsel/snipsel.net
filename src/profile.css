@@ -32,6 +32,7 @@
 
 #profile img{
     border-radius:50%;
+    background-color: #daccaf;
     width: min(100%, calc(var(--max-viewport-width-pfp) - 2*var(--gutter)));
     margin-bottom: var(--gutter);
 }
