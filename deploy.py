@@ -9,13 +9,19 @@ import boto3
 local_path = Path(__file__).parent/"www"
 
 
-def main(skip_thumbs:bool=False):
+def main(skip_thumbs:bool=False, index_only:bool=False):
     s3 = authenticate()
 
     objects = list_objects(s3)
     local_files = list(local_path.iterdir())
 
+    if index_only:
+        assert(not skip_thumbs)
+        objects = {'index.html':objects['index.html']}
+        local_files = [local_path/'index.html']
+
     if skip_thumbs:
+        assert(not index_only)
         def is_thumb(s:str):
             return s.endswith('.jpg') or s.endswith('.avif')
         objects     = {k:v for k,v in objects.items() if not is_thumb(k)}
@@ -155,5 +161,5 @@ if __name__ == "__main__":
     argset = set()
     for arg in argv[1:]:
         argset.add(arg)
-    main(skip_thumbs='--skip-thumbs' in argset)
+    main(skip_thumbs='--skip-thumbs' in argset, index_only ='--index-only' in argset)
 
