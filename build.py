@@ -75,9 +75,9 @@ def gen_html_picture(artist:dict, slug:str, size, thumbs:list, date:str, alt:str
     mini_avif = ','.join([f'{slug}-{w}w.avif {w}w' for w,h in thumbs])
     return f"""
           <picture>
-            <source type="image/avif" sizes="calc(100% - 2rem)" srcset="{mini_avif}">
-            <source type="image/jpeg" sizes="calc(100% - 2rem)" srcset="{mini_jpg}">
-            <img src="{slug}-400w.jpg" alt="{alt}">
+            <source type="image/avif" srcset="{mini_avif}">
+            <source type="image/jpeg" srcset="{mini_jpg}">
+            <img width="{size[0]}" height="{size[1]}" src="{slug}-400w.jpg" alt="{alt}">
           </picture>"""
 
 def gen_html_figure(artist:dict, slug:str, size, thumbs:list, date:str, alt:str, sha3:str, edit:str=None) -> str:
