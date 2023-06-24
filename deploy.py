@@ -36,8 +36,9 @@ def sync(skip_thumbs:bool=False):
             print_done(sym_upload,'uploaded')
         else:
             head = head_object(s3, file)
+            filename =pad_with_dots(file.name,max_filename_len)
             if head is None:
-                print_message(sym_fail,'failed to head','skipped',status='fail',file=pad_with_dots(file.name,max_filename_len))
+                print_message(sym_fail,'failed to head','skipped',status='fail',file=filename)
             elif 'sha3-256' not in head['Metadata']:
                 pending('missing sha3-256 hash','uploading')
                 put_object(s3, file)
@@ -47,7 +48,7 @@ def sync(skip_thumbs:bool=False):
                 put_object(s3, file)
                 print_done('sym_upload','done')
             else:
-                print_message(sym_skip,'hash matches','skipped')
+                print_message(sym_skip,'hash matches','skipped',file=filename)
 
     extra_remote_files = list(set(objects.keys()) - set(local_file_names))
     if len(extra_remote_files) == 0:
@@ -57,7 +58,8 @@ def sync(skip_thumbs:bool=False):
         pending('remote not clean','deleting')
         if delete_objects(s3, extra_remote_files):
             print_done(sym_delete,'deleted')
-        print_done(sym_fail,'skipped',status='fail')
+        else:
+            print_done(sym_fail,'skipped',status='fail')
 
     print_opcount()
 
@@ -194,10 +196,12 @@ def print_pending(name:str, maxlen:int, msg:str, action:str):
            end='', flush=True)
 
 def print_done(symbol:str, action_taken:str, status:str='ok'):
-    print(column(maxlen_action+3) + csi('1K') + column(0) + symbol + column(3) + style_status(status,action_taken.ljust(maxlen_action)))
+    print(column(maxlen_action+3) + csi('1K') +
+          column(0) + symbol +
+          column(3) + style(status, action_taken.ljust(maxlen_action)))
 
 def print_message(symbol:str, msg:str, action_taken:str, file:str='', status:str='ok'):
-    print(symbol + column(3) + style_status(status,action_taken.ljust(maxlen_action+1)) + file + italic(msg))
+    print(symbol + column(3) + style(status, action_taken.ljust(maxlen_action+1)) + file + italic(msg))
 
 def print_opcount():
     max_op_len = max([len(key) for key in opcount])
@@ -222,16 +226,18 @@ if __name__ == "__main__":
     from sys import argv
     try:
         if '-h' in set(argv[1:]) or '--help' in set(argv[1:]):
-            print(f"{style_status('warn',argv[0])} {italic('[--skip-thumbs]')}")
+            print(f"{style('warn',argv[0])} {italic('[--skip-thumbs]')}")
             print(f"    Syncs the remote to be identical to local.")
             print(f"    {bold('--skip-thumbs')}  Skip thumbnails.")
-            print(f"{style_status('warn',argv[0]+' push')} {italic('[files...]')}")
+            print(f"{style('warn',argv[0]+' push')} {italic('[files...]')}")
             print(f"    Pushes local files to remote unconditionally.")
-        elif argv[1] == 'push':
+        elif len(argv)>2 and argv[1] == 'push':
             push(argv[2:])
         else:
             argset = set(argv[1:])
             sync(skip_thumbs=('--skip-thumbs' in argset))
     except KeyboardInterrupt:
-        exit('\ninterrupted')
+        print('\ninterrupted')
+        print_opcount()
+        exit()
 
