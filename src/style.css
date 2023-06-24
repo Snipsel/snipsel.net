@@ -59,3 +59,69 @@ small{
 .sky{
     background: linear-gradient(var(--color-sky-top), var(--color-sky-bottom));
 }
+
+#profile{
+    text-align: center;
+    padding: 1rem;
+    padding-top: 1.5rem;
+}
+
+#profile ul{
+    width: 8em;
+    margin: auto;
+    text-align: left;
+}
+
+
+#profile svg{
+    fill: var(--color-water);
+}
+
+#profile li{
+    list-style-type: none;
+}
+
+#profile li a{
+    text-decoration: none;
+    display: block;
+    background-color: #FFF;
+    color: var(--color-water);
+    border-radius: 50vh;
+    padding: 0.125em 0.25em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+#profile img{
+    border-radius:50%;
+    background-color: #daccaf;
+    width: min(100%, calc(var(--max-viewport-width-pfp) - 2*var(--gutter)));
+    margin-bottom: var(--gutter);
+}
+
+#gallery,
+#refsheet {
+    background-color: var(--color-water);
+    padding: var(--gutter);
+    gap: var(--gutter);
+    margin:auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#gallery img,
+#gallery figure{
+    max-width: min(100%, 50vh);
+}
+
+#refsheet img,
+#refsheet figure{
+    width: min(100%, calc(var(--max-viewport-width-refsheet) - 2*var(--gutter)));
+}
+
+figcaption{
+    text-align: left;
+}
+
+figcaption time{ float: right; color:#FFFA }

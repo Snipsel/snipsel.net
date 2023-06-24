@@ -166,7 +166,7 @@ def gen_html(artworks:list[Artwork], src_path:Path) -> str:
 
     return resolve(strip_lines(read_txt("index.html")), 
                    title="Snipsel's Cozy Corner of the Internet",
-                   style=strip_lines(read_txt("style.css")+read_txt("profile.css")+read_txt("gallery.css")),
+                   style=strip_lines(read_txt("style.css")),
                    svg=strip_lines(read_txt("icons.svg")),
                    pfp=strip_lines(pfp_html),
                    refsheet=strip_lines(refsheet_html),
@@ -242,6 +242,9 @@ def gen_html_pfp(art:Artwork) -> str:
         </figure>"""
 
 ### argument parsing (TODO) ####################################################
+from sys import argv
 
 if __name__ == "__main__":
-    main()
+    argset = set(argv[1:])
+    main(skip_images=('--skip-images' in argset))
+
