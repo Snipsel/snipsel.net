@@ -60,6 +60,10 @@ small{
     background: linear-gradient(var(--color-sky-top), var(--color-sky-bottom));
 }
 
+h1,h2{
+    font-size: 1.5rem;
+}
+
 #profile{
     text-align: center;
     padding: 1rem;
