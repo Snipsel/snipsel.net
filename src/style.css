@@ -64,6 +64,11 @@ h1,h2{
     font-size: 1.5rem;
 }
 
+/* minimize layout shifts due to font loading */
+h1, h2, p, #profile li a {
+    line-height: 1.5em;
+}
+
 #profile{
     text-align: center;
     padding: 1rem;
@@ -75,7 +80,6 @@ h1,h2{
     margin: auto;
     text-align: left;
 }
-
 
 #profile svg{
     fill: var(--color-water);
