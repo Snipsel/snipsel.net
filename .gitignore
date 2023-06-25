@@ -2,5 +2,7 @@
 !.gitignore
 !README.md
 !data
+!data/*
 !src
+!src/*
 !*.py

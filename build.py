@@ -161,17 +161,47 @@ def gen_html(artworks:list[Artwork], src_path:Path) -> str:
             case ArtworkCategory.regular:
                 gallery_html.append(gen_html_figure(artwork))
 
+    with open(src_path/'constants.yaml', 'r') as file:
+        constants = list(yaml.safe_load_all(file))
+        css_constants = constants[0]['css']
+
     def read_txt(filename:str):
         return (src_path/filename).read_text(encoding="utf-8")
 
+    css = preprocess_css(read_txt("style.css"), css_constants)
+
     return resolve(strip_lines(read_txt("index.html")), 
                    title="Snipsel's Cozy Corner of the Internet",
-                   style=strip_lines(read_txt("style.css")),
+                   style=css,
                    svg=strip_lines(read_txt("icons.svg")),
                    pfp=strip_lines(pfp_html),
                    refsheet=strip_lines(refsheet_html),
                    gallery=strip_lines(''.join(gallery_html)),
                    githash=git_short_hash() )
+
+import re
+
+def preprocess_css(css_source:str, css_constants:dict[str,str]) -> str:
+    # substitute constants for var(--variable-name)
+    ret = re.sub('var\(\s*--([A-Za-z0-9-]+)\s*\)',
+                 lambda m: css_constants[m.group(1)],
+                 css_source)
+
+    # strip comments
+    ret = re.sub('/\*(?:.*?)\*/', '', ret)
+
+    # remove whitespace
+    ret = strip_lines(ret)
+
+    # remove spaces after : and ,
+    ret = re.sub(':\s+', ':', ret)
+    ret = re.sub(',\s+', ',', ret)
+
+    # remove last ; in list
+    ret = re.sub(';\s*}', '}', ret)
+
+    print(ret)
+    return ret
 
 def resolve(template:str, **replacements: dict[str,str]):
     for tag,repl in replacements.items():

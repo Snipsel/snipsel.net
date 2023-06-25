@@ -1,0 +1,10 @@
+css:
+  gutter: 1rem
+  max-viewport-width-pfp: 12rem
+  max-viewport-width-refsheet: 33rem
+  color-sky-top:    '#3d6fb8'
+  color-sky-bottom: '#a5c9e9'
+  color-water:      '#3d8fb8'
+  color-fg:         '#FFF'
+  color-fg-dim:     '#FFFA'
+
