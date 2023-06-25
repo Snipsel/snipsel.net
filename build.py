@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from time import perf_counter_ns
+perf_epoch = perf_counter_ns()
 import yaml
 from pathlib import Path
 from shutil import copy,rmtree
@@ -11,24 +13,53 @@ from enum import Enum, verify, UNIQUE, CONTINUOUS
 from typing import Iterator,Tuple
 
 def main(skip_images = False,
+         dev_mode    = False,
          src_path    = Path(__file__).parent/"src",
          dst_path    = Path(__file__).parent/"www",
          img_path    = Path(__file__).parent/"img",
          data_path   = Path(__file__).parent/"data"):
 
-    if not skip_images: rmtree(dst_path, ignore_errors=True)
+    if not skip_images:
+        rmtree(dst_path, ignore_errors=True)
     dst_path.mkdir(parents=True, exist_ok=True)
 
-    if not skip_images: copy(data_path/"favicon32.png", dst_path)
+    perf_pre  = perf_counter_ns()
 
     subset_font(str(data_path/"Nunito.ttf"), str(dst_path/"nunito.woff2"))
+
+    perf_font = perf_counter_ns()
+
+    if not skip_images:
+        copy(data_path/"favicon32.png", dst_path)
 
     artworks = [ load_image(meta, None if skip_images else dst_path)
                  for meta in parse_metadata(src_path/'metadata.yaml', img_path) ]
 
-    html = gen_html(artworks, src_path)
+    perf_imgs   = perf_counter_ns()
+
+    html = gen_html(artworks, src_path, dev_mode)
     (dst_path/'index.html').write_text(html, encoding="utf-8")
-    print("done!")
+
+    perf_done = perf_counter_ns()
+
+    t_total = float(perf_done-perf_epoch)/1000000000
+    t_pream = float(perf_pre -perf_epoch)/1000000000
+    t_font  = float(perf_font-perf_pre  )/1000000000
+    t_imgs  = float(perf_imgs-perf_font )/1000000000
+    t_html  = float(perf_done-perf_imgs )/1000000000
+    print(f"TOTAL:    {t_total:>8.3f}s")
+    print(f"preamble: {t_pream:>8.3f}s {100*t_pream/t_total:>3.0f}% " + progress_bar(t_pream/t_total, 10))
+    print(f"font:     {t_font :>8.3f}s {100*t_font /t_total:>3.0f}% " + progress_bar(t_font /t_total, 10))
+    print(f"images:   {t_imgs :>8.3f}s {100*t_imgs /t_total:>3.0f}% " + progress_bar(t_imgs /t_total, 10))
+    print(f"html:     {t_html :>8.3f}s {100*t_html /t_total:>3.0f}% " + progress_bar(t_html /t_total, 10))
+
+def progress_bar(filled:float, width:int) -> str:
+    blocks = [' ','\u258F','\u258E','\u258D','\u258C','\u258B','\u258A','\u2589','\u2588']
+    eights:int = int(round( filled*8*width ))
+    full_blocks = (eights//int(8))*blocks[-1]
+    partial_block = blocks[(eights%int(8))]
+    bar = f"{full_blocks}{partial_block}".ljust(width)
+    return f"\033[100m{bar}\033[m"
 
 ### parsing metadata ###########################################################
 
@@ -125,7 +156,6 @@ def thumb_sizes(src:Extent) -> list[Extent]:
     return ret;
 
 def generate_thumbnail(img:Image, size:Extent, path:Path, slug:str, file_extension:str, quality:int) -> None:
-    print(f"{slug} {file_extension} {size.w}x{size.h}")
     with img.clone() as o:
         o.thumbnail(width=size.w, height=size.h)
         o.compression_quality=quality
@@ -139,6 +169,7 @@ def load_image(meta:ArtworkMeta, write_path:Path|None) -> Artwork:
             size   = src_size,
             thumbs = list(thumb_sizes(src_size)) )
         if write_path is not None:
+            print(f"generating {art.meta.slug}")
             copy(art.meta.path, write_path/art.meta.slug)
             for thumb_size in art.thumbs:
                 generate_thumbnail(img, thumb_size, write_path, art.meta.slug, 'avif', quality=64)
@@ -147,7 +178,7 @@ def load_image(meta:ArtworkMeta, write_path:Path|None) -> Artwork:
 
 ### html generation ############################################################
 
-def gen_html(artworks:list[Artwork], src_path:Path) -> str:
+def gen_html(artworks:list[Artwork], src_path:Path, dev_mode:bool) -> str:
     gallery_html = []
     refsheet_html = ""
     pfp_html = ""
@@ -168,40 +199,46 @@ def gen_html(artworks:list[Artwork], src_path:Path) -> str:
     def read_txt(filename:str):
         return (src_path/filename).read_text(encoding="utf-8")
 
-    css = preprocess_css(read_txt("style.css"), css_constants)
+    css = preprocess_css(read_txt("style.css"), css_constants, dev_mode)
 
     return resolve(strip_lines(read_txt("index.html")), 
-                   title="Snipsel's Cozy Corner of the Internet",
-                   style=css,
-                   svg=strip_lines(read_txt("icons.svg")),
-                   pfp=strip_lines(pfp_html),
-                   refsheet=strip_lines(refsheet_html),
-                   gallery=strip_lines(''.join(gallery_html)),
-                   githash=git_short_hash() )
+                   title = "Snipsel's Cozy Corner of the Internet",
+                   style = css,
+                   svg = strip_lines(read_txt("icons.svg")),
+                   pfp = strip_lines(pfp_html),
+                   refsheet = strip_lines(refsheet_html),
+                   gallery = strip_lines(''.join(gallery_html)),
+                   githash = git_short_hash() )
 
 import re
 
-def preprocess_css(css_source:str, css_constants:dict[str,str]) -> str:
-    # substitute constants for var(--variable-name)
-    ret = re.sub('var\(\s*--([A-Za-z0-9-]+)\s*\)',
-                 lambda m: css_constants[m.group(1)],
-                 css_source)
+def preprocess_css(css_source:str, css_constants:dict[str,str], dev_mode:bool) -> str:
+    if dev_mode:
+        root = ":root{\n"
+        for k,v in css_constants.items():
+            root += f'  --{k}: {v};\n'
+        root += '}\n\n'
+        return root + css_source;
+    else:
+        # substitute constants for var(--variable-name)
+        ret = re.sub('var\(\s*--([A-Za-z0-9-]+)\s*\)',
+                     lambda m: css_constants[m.group(1)],
+                     css_source)
 
-    # strip comments
-    ret = re.sub('/\*(?:.*?)\*/', '', ret)
+        # strip comments
+        ret = re.sub('/\*(?:.*?)\*/', '', ret)
 
-    # remove whitespace
-    ret = strip_lines(ret)
+        # remove whitespace
+        ret = strip_lines(ret)
 
-    # remove spaces after : and ,
-    ret = re.sub(':\s+', ':', ret)
-    ret = re.sub(',\s+', ',', ret)
+        # remove spaces after : and ,
+        ret = re.sub(':\s+', ':', ret)
+        ret = re.sub(',\s+', ',', ret)
 
-    # remove last ; in list
-    ret = re.sub(';\s*}', '}', ret)
+        # remove last ; in list
+        ret = re.sub(';\s*}', '}', ret)
 
-    print(ret)
-    return ret
+        return ret
 
 def resolve(template:str, **replacements: dict[str,str]):
     for tag,repl in replacements.items():
@@ -271,10 +308,27 @@ def gen_html_pfp(art:Artwork) -> str:
           {gen_html_picture(art)}
         </figure>"""
 
-### argument parsing (TODO) ####################################################
+### argument parsing ###########################################################
 from sys import argv
+
+def help_text(exe:str)->str:
+    return \
+f'''usage:
+  {argv[0]} [flags..]
+flags:
+  --help, -h     prints help message and quits
+  --skip-images  skips all images to speed up build
+  --dev-mode     generates less compact but more debugable index.html'''
 
 if __name__ == "__main__":
     argset = set(argv[1:])
-    main(skip_images=('--skip-images' in argset))
+    unrecognised_args = argset.difference({'-h','--help','--skip-images','--dev-mode'})
+    if len( unrecognised_args ) != 0:
+        s = 's' if len(unrecognised_args) > 1 else ''
+        print(f"unrecognised argument{s}: {' '.join(unrecognised_args)}\n" + help_text(argv[0]))
+    elif '-h' in argset or '--help' in argset:
+        print(help_text(argv[0]))
+    else:
+        main(skip_images = ('--skip-images' in argset),
+             dev_mode    = ('--dev-mode'    in argset))
 

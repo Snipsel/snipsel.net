@@ -13,7 +13,7 @@
 }
 
 :root{
-    /* custom properties are defined in constants.yaml and substituted in */
+    /* custom properties are defined in constants.yaml */
     font-family: Nunito;
     font-feature-settings: "onum";
     font-size: clamp(1rem, 5vw, 1.5rem);
