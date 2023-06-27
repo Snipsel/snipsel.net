@@ -13,10 +13,22 @@
 }
 
 :root{
-    /* custom properties are defined in constants.yaml */
+    /* These four variables must be an integer number of px. This is because  *
+     * they are parsed by build.py in order to generate the correct 'sizes'   *
+     * attribute for the images.                                              */
+    --gutter:          32px;
+    --width-pfp:      240px;
+    --width-refsheet: 750px;
+    --width-gallery:  500px;
+
+    --color-sky-top:    #3d6fb8;
+    --color-sky-bottom: #a5c9e9;
+    --color-water:      #3d8fb8;
+    --color-fg:         #FFF;
+    --color-fg-dim:     #FFFA;
     font-family: Nunito;
     font-feature-settings: "onum";
-    font-size: clamp(1rem, 5vw, 1.5rem);
+    font-size: clamp(1rem, 2.5vw + 0.5rem, 1.5rem);
     color: var(--color-fg);
 }
 
@@ -105,10 +117,22 @@ h1, h2, p,
     margin-bottom: 0.5em;
 }
 
+/* Do not modify these three widths! build.py assumes this formula. */
+#profile img{ 
+    width: min(100vw - 2*var(--gutter), var(--width-pfp));
+}
+#gallery img,
+#gallery figure{
+    width: min(100vw - 2*var(--gutter), var(--width-gallery));
+}
+#refsheet img,
+#refsheet figure{
+    width: min(100vw - 2*var(--gutter), var(--width-refsheet));
+}
+
 #profile img{
     border-radius: 50%;
     background-color: #daccaf;
-    width: min(100%, calc(var(--max-viewport-width-pfp) - 2*var(--gutter)));
     margin-bottom: var(--gutter);
 }
 
@@ -121,15 +145,5 @@ h1, h2, p,
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-#gallery img,
-#gallery figure{
-    max-width: min(100%, 50vh);
-}
-
-#refsheet img,
-#refsheet figure{
-    width: min(100%, calc(var(--max-viewport-width-refsheet) - 2*var(--gutter)));
 }
 

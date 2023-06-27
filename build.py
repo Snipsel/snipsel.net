@@ -11,9 +11,10 @@ from fontTools import subset
 from dataclasses import dataclass
 from enum import Enum, verify, UNIQUE, CONTINUOUS
 from typing import Iterator,Tuple
+import re
 
 def main(skip_images = False,
-         dev_mode    = False,
+         pretty      = False,
          src_path    = Path(__file__).parent/"src",
          dst_path    = Path(__file__).parent/"www",
          img_path    = Path(__file__).parent/"img",
@@ -37,7 +38,7 @@ def main(skip_images = False,
 
     perf_imgs   = perf_counter_ns()
 
-    html = gen_html(artworks, src_path, dev_mode)
+    html = gen_html(artworks, src_path, pretty)
     (dst_path/'index.html').write_text(html, encoding="utf-8")
 
     perf_done = perf_counter_ns()
@@ -178,67 +179,69 @@ def load_image(meta:ArtworkMeta, write_path:Path|None) -> Artwork:
 
 ### html generation ############################################################
 
-def gen_html(artworks:list[Artwork], src_path:Path, dev_mode:bool) -> str:
+@dataclass(slots=True)
+class CssVariables:
+    gutter         : int
+    width_pfp      : int
+    width_refsheet : int
+    width_gallery  : int
+
+def gen_html(artworks:list[Artwork], src_path:Path, pretty:bool) -> str:
+    def read_txt(filename:str) -> str:
+        return (src_path/filename).read_text(encoding="utf-8")
+
+    style_css = read_txt("style.css")
+    css = CssVariables(
+        gutter         = extract_css_variable_px(style_css, "gutter"),
+        width_pfp      = extract_css_variable_px(style_css, "width-pfp"),
+        width_refsheet = extract_css_variable_px(style_css, "width-refsheet"),
+        width_gallery  = extract_css_variable_px(style_css, "width-gallery"))
+
+    if not pretty:
+        style_css = preprocess_css(style_css)
+
     gallery_html = []
     refsheet_html = ""
     pfp_html = ""
     for artwork in artworks:
         match artwork.meta.category:
             case ArtworkCategory.pfp:
-                pfp_html = gen_html_pfp(artwork)
-                gallery_html.append(gen_html_figure(artwork))
+                pfp_html = gen_html_pfp(artwork, css)
+                gallery_html.append(gen_html_figure(artwork, css))
             case ArtworkCategory.refsheet:
-                refsheet_html = gen_html_figure(artwork)
+                refsheet_html = gen_html_figure(artwork, css)
             case ArtworkCategory.regular:
-                gallery_html.append(gen_html_figure(artwork))
-
-    with open(src_path/'constants.yaml', 'r') as file:
-        constants = list(yaml.safe_load_all(file))
-        css_constants = constants[0]['css']
-
-    def read_txt(filename:str):
-        return (src_path/filename).read_text(encoding="utf-8")
-
-    css = preprocess_css(read_txt("style.css"), css_constants, dev_mode)
+                gallery_html.append(gen_html_figure(artwork, css))
 
     return resolve(strip_lines(read_txt("index.html")), 
                    title = "Snipsel's Cozy Corner of the Internet",
-                   style = css,
+                   style = style_css,
                    svg = strip_lines(read_txt("icons.svg")),
                    pfp = strip_lines(pfp_html),
                    refsheet = strip_lines(refsheet_html),
                    gallery = strip_lines(''.join(gallery_html)),
                    githash = git_short_hash() )
 
-import re
 
-def preprocess_css(css_source:str, css_constants:dict[str,str], dev_mode:bool) -> str:
-    if dev_mode:
-        root = ":root{\n"
-        for k,v in css_constants.items():
-            root += f'  --{k}: {v};\n'
-        root += '}\n\n'
-        return root + css_source;
-    else:
-        # substitute constants for var(--variable-name)
-        ret = re.sub('var\(\s*--([A-Za-z0-9-]+)\s*\)',
-                     lambda m: css_constants[m.group(1)],
-                     css_source)
+def extract_css_variable_px(source:str, var:str):
+    match = re.search(f'--{var}\s*:\s*([0-9]+)px\s*;', source)
+    return int(match.groups(1)[0])
 
-        # strip comments
-        ret = re.sub('/\*(?:.*?)\*/', '', ret)
+def preprocess_css(css_source:str) -> str:
+    # strip comments
+    ret = re.sub('/\*(?:.*?)\*/', '', css_source)
 
-        # remove whitespace
-        ret = strip_lines(ret)
+    # remove whitespace
+    ret = strip_lines(ret)
 
-        # remove spaces after : and ,
-        ret = re.sub(':\s+', ':', ret)
-        ret = re.sub(',\s+', ',', ret)
+    # remove spaces after : and ,
+    ret = re.sub(':\s+', ':', ret)
+    ret = re.sub(',\s+', ',', ret)
 
-        # remove last ; in list
-        ret = re.sub(';\s*}', '}', ret)
+    # remove last ; in list
+    ret = re.sub(';\s*}', '}', ret)
 
-        return ret
+    return ret
 
 def resolve(template:str, **replacements: dict[str,str]):
     for tag,repl in replacements.items():
@@ -272,11 +275,11 @@ def gen_artist_links(artist:Artist) -> str:
             </a>"""
     return html
 
-def gen_html_picture(art:Artwork):
+def gen_html_picture(art:Artwork, css:CssVariables):
     sizes = art.meta.category.match(
-        pfp      = 'min(100vw,320px - 2rem)',
-        refsheet = 'min(100vw,800px - 2rem)',
-        regular  = 'min(100vw,50vh)')
+        pfp      = f'min(100vw - {2*css.gutter}px,{css.width_pfp     }px)',
+        refsheet = f'min(100vw - {2*css.gutter}px,{css.width_refsheet}px)',
+        regular  = f'min(100vw - {2*css.gutter}px,{css.width_gallery }px)')
     mini_jpg  = ','.join([f'{art.meta.slug}-{e.w}w.jpg {e.w}w' for e in art.thumbs])
     mini_avif = ','.join([f'{art.meta.slug}-{e.w}w.avif {e.w}w' for e in art.thumbs])
 
@@ -287,13 +290,13 @@ def gen_html_picture(art:Artwork):
           <img width="{art.size.w}" height="{art.size.h}" src="{art.meta.slug}-400w.jpg" alt="{art.meta.alt}">
         </picture>"""
 
-def gen_html_figure(art:Artwork) -> str:
+def gen_html_figure(art:Artwork, css_vars:CssVariables) -> str:
     yyyy,mm,dd = art.meta.date.split(' ')[0].split('-')
     month = [None, "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][int(mm)]
     return f"""
         <figure id="{art.meta.slug}" class="artwork">
           <a href="{art.meta.slug}">
-            {gen_html_picture(art)}
+            {gen_html_picture(art,css_vars)}
           </a>
           <figcaption>
             {art.meta.artist.name}
@@ -302,10 +305,10 @@ def gen_html_figure(art:Artwork) -> str:
           </figcaption>
         </figure>"""
 
-def gen_html_pfp(art:Artwork) -> str:
+def gen_html_pfp(art:Artwork, css_vars:CssVariables) -> str:
     return f"""
         <figure id="pfp" class="artwork">
-          {gen_html_picture(art)}
+          {gen_html_picture(art,css_vars)}
         </figure>"""
 
 ### argument parsing ###########################################################
@@ -318,11 +321,11 @@ f'''usage:
 flags:
   --help, -h     prints help message and quits
   --skip-images  skips all images to speed up build
-  --dev-mode     generates less compact but more debugable index.html'''
+  --pretty       generates less compact but more debugable index.html'''
 
 if __name__ == "__main__":
     argset = set(argv[1:])
-    unrecognised_args = argset.difference({'-h','--help','--skip-images','--dev-mode'})
+    unrecognised_args = argset.difference({'-h','--help','--skip-images','--pretty'})
     if len( unrecognised_args ) != 0:
         s = 's' if len(unrecognised_args) > 1 else ''
         print(f"unrecognised argument{s}: {' '.join(unrecognised_args)}\n" + help_text(argv[0]))
@@ -330,5 +333,5 @@ if __name__ == "__main__":
         print(help_text(argv[0]))
     else:
         main(skip_images = ('--skip-images' in argset),
-             dev_mode    = ('--dev-mode'    in argset))
+             pretty      = ('--pretty'      in argset))
 
